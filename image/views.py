@@ -19,7 +19,7 @@ def upload_image(request):
     obj = ImageModel.objects.create(image=image)
 
     # build CDN URL
-    image_url = {obj.image.url}
+    image_url = obj.image.url
 
     # store in MongoDB
     collection.insert_one({
