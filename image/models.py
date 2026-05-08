@@ -1,12 +1,10 @@
 from django.db import models
 import uuid
+import os 
 
-def upload_path(instance, filename):
+def generate_filename(filename):
     ext = filename.split('.')[-1]
     return f"{uuid.uuid4()}.{ext}"
-
-class ImageModel(models.Model):
-    image = models.ImageField(upload_to=upload_path)
 
 class Service(models.Model):
     id=models.AutoField(primary_key=True)
@@ -23,3 +21,35 @@ class Service(models.Model):
 
     class Meta:
         db_table = 'services'
+
+class Image(models.Model):
+
+    id = models.AutoField(primary_key=True)
+
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE
+    )
+
+    original_name = models.CharField(max_length=255)
+
+    stored_name = models.CharField(
+        max_length=255,
+        unique=True
+    )
+
+    file_size = models.IntegerField(null=True)
+
+    mime_type = models.CharField(
+        max_length=50,
+        null=True
+    )
+
+    image = models.ImageField(
+        upload_to='',
+    )
+
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "images"
