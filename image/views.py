@@ -1,7 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from pymongo import MongoClient
-from .models import ImageModel
+from .models import ImageModel,Service
+import uuid
 
 client = MongoClient("mongodb://root:yourStrongPassword@localhost:27017/admin")
 db = client["image_db"]
@@ -29,4 +30,30 @@ def upload_image(request):
     return Response({
         "message": "Uploaded",
         "url": image_url
+    })
+
+@api_view(['POST'])
+def register_service(request):
+
+    name = request.data.get('name')
+
+    if not name:
+        return Response({
+            "error": "Service name is required"
+        }, status=400)
+
+    service = Service.objects.create(
+        name=name,
+        api_key=str(uuid.uuid4())
+    )
+
+    return Response({
+        "message": "Service registered successfully",
+        "service": {
+            "id": service.id,
+            "name": service.name,
+            "api_key": service.api_key,
+            "is_active": service.is_active,
+            "created_at": service.created_at
+        }
     })
