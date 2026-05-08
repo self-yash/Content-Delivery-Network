@@ -1,10 +1,14 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Image,Service
+
 import uuid
 import os
 
 CDN_DOMAIN = "https://cdn.nexiotech.cloud"
+
+UPLOAD_DIR = "/var/www/images"
+
 
 @api_view(['POST'])
 def register_service(request):
@@ -60,38 +64,38 @@ def upload_image(request):
             "error": "No image provided"
         }, status=400)
 
-    # generate unique filename
-    ext = image.name.split('.')[-1]
+    # original filename
+    original_name = image.name
+
+    # extension
+    ext = original_name.split('.')[-1]
+
+    # generate UUID filename
     stored_name = f"{uuid.uuid4()}.{ext}"
 
-    obj = Image.objects.create(
-        service=service,
-
-        original_name=image.name,
-
-        stored_name=stored_name,
-
-        file_size=image.size,
-
-        mime_type=image.content_type,
-
-        image=image
-    )
-
-    # rename actual stored file
-    old_path = obj.image.path
-
-    new_path = os.path.join(
-        os.path.dirname(old_path),
+    # final path
+    save_path = os.path.join(
+        UPLOAD_DIR,
         stored_name
     )
 
-    os.rename(old_path, new_path)
+    # save file manually
+    with open(save_path, 'wb+') as destination:
+        for chunk in image.chunks():
+            destination.write(chunk)
 
-    obj.image.name = stored_name
-    obj.save()
+    # save metadata in MySQL
+    Image.objects.create(
+        service=service,
+        original_name=original_name,
+        stored_name=stored_name,
+        file_size=image.size,
+        mime_type=image.content_type
+    )
+
+    image_url = f"{CDN_DOMAIN}/{stored_name}"
 
     return Response({
         "message": "Image uploaded successfully",
-        "image_url": obj.image.url
+        "image_url": image_url
     })

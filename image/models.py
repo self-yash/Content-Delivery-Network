@@ -24,10 +24,8 @@ class Service(models.Model):
 
 class Image(models.Model):
 
-    id = models.AutoField(primary_key=True)
-
     service = models.ForeignKey(
-        Service,
+        'Service',
         on_delete=models.CASCADE
     )
 
@@ -43,10 +41,6 @@ class Image(models.Model):
     mime_type = models.CharField(
         max_length=50,
         null=True
-    )
-
-    image = models.ImageField(
-        upload_to='',
     )
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
