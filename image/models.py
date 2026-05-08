@@ -9,8 +9,8 @@ class ImageModel(models.Model):
     image = models.ImageField(upload_to=upload_path)
 
 class Service(models.Model):
-    name = models.CharField(max_length=255)
     id=models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
 
     api_key = models.CharField(
         max_length=255,
@@ -19,7 +19,6 @@ class Service(models.Model):
     )
 
     is_active = models.BooleanField(default=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
