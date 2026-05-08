@@ -5,4 +5,5 @@ app_name = 'image'
 
 urlpatterns = [
     path('register/', register_service),
+    path('upload/', upload_image),
 ]
