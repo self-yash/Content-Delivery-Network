@@ -10,6 +10,7 @@ class ImageModel(models.Model):
 
 class Service(models.Model):
     name = models.CharField(max_length=255)
+    id=models.AutoField(primary_key=True)
 
     api_key = models.CharField(
         max_length=255,
