@@ -7,4 +7,5 @@ urlpatterns = [
     path('register/', register_service),
     path('upload/', upload_image),
     path('regenerate-key/', regenerate_api_key),
+    path('delete/', delete_image),
 ]

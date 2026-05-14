@@ -138,9 +138,8 @@ def regenerate_api_key(request):
         }
     })
 
-
 @api_view(['DELETE'])
-def delete_image(request, image_id):
+def delete_image(request):
 
     api_key = request.headers.get("X-API-KEY")
 
@@ -159,6 +158,13 @@ def delete_image(request, image_id):
         return Response({
             "error": "Invalid API key"
         }, status=403)
+
+    image_id = request.data.get("image_id")
+
+    if not image_id:
+        return Response({
+            "error": "image_id required"
+        }, status=400)
 
     try:
         image = Image.objects.get(
