@@ -137,3 +137,53 @@ def regenerate_api_key(request):
             "new_api_key": service.api_key
         }
     })
+
+
+@api_view(['DELETE'])
+def delete_image(request, image_id):
+
+    api_key = request.headers.get("X-API-KEY")
+
+    if not api_key:
+        return Response({
+            "error": "API key required"
+        }, status=401)
+
+    try:
+        service = Service.objects.get(
+            api_key=api_key,
+            is_active=True
+        )
+
+    except Service.DoesNotExist:
+        return Response({
+            "error": "Invalid API key"
+        }, status=403)
+
+    try:
+        image = Image.objects.get(
+            id=image_id,
+            service=service
+        )
+
+    except Image.DoesNotExist:
+        return Response({
+            "error": "Image not found"
+        }, status=404)
+
+    # physical file path
+    file_path = os.path.join(
+        UPLOAD_DIR,
+        image.stored_name
+    )
+
+    # delete physical file
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    # delete DB row
+    image.delete()
+
+    return Response({
+        "message": "Image deleted successfully"
+    })
