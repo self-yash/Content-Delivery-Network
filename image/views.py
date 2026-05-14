@@ -99,3 +99,41 @@ def upload_image(request):
         "message": "Image uploaded successfully",
         "image_url": image_url
     })
+
+@api_view(['POST'])
+def regenerate_api_key(request):
+
+    service_id = request.data.get("service_id")
+    service_name = request.data.get("service_name")
+
+    if not service_id or not service_name:
+        return Response({
+            "error": "service_id and service_name are required"
+        }, status=400)
+
+    try:
+        service = Service.objects.get(
+            id=service_id,
+            name=service_name
+        )
+
+    except Service.DoesNotExist:
+        return Response({
+            "error": "Service not found"
+        }, status=404)
+
+    # generate new API key
+    new_api_key = str(uuid.uuid4())
+
+    # replace old key
+    service.api_key = new_api_key
+    service.save()
+
+    return Response({
+        "message": "API key regenerated successfully",
+        "service": {
+            "id": service.id,
+            "name": service.name,
+            "new_api_key": service.api_key
+        }
+    })
