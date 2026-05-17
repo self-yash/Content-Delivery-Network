@@ -193,3 +193,51 @@ def delete_image(request):
     return Response({
         "message": "Image deleted successfully"
     })
+
+@api_view(['GET'])
+def list_images(request):
+
+    api_key = request.headers.get("X-API-KEY")
+
+    if not api_key:
+        return Response({
+            "error": "API key required"
+        }, status=401)
+
+    try:
+        service = Service.objects.get(
+            api_key=api_key,
+            is_active=True
+        )
+
+    except Service.DoesNotExist:
+        return Response({
+            "error": "Invalid API key"
+        }, status=403)
+
+    images = Image.objects.filter(
+        service=service
+    ).order_by('-uploaded_at')
+
+    image_list = []
+
+    for image in images:
+
+        image_list.append({
+            "image_id": image.id,
+            "original_name": image.original_name,
+            "stored_name": image.stored_name,
+            "file_size": image.file_size,
+            "uploaded_at": image.uploaded_at,
+            "image_url":
+                f"{CDN_DOMAIN}/{image.stored_name}"
+        })
+
+    return Response({
+        "service": {
+            "id": service.id,
+            "name": service.name
+        },
+        "total_images": len(image_list),
+        "images": image_list
+    })

@@ -8,4 +8,5 @@ urlpatterns = [
     path('upload/', upload_image),
     path('regenerate-key/', regenerate_api_key),
     path('delete/', delete_image),
+    path('list/',list_images),
 ]
