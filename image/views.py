@@ -227,7 +227,6 @@ def list_images(request):
             "image_id": image.id,
             "original_name": image.original_name,
             "stored_name": image.stored_name,
-            "file_size": image.file_size,
             "uploaded_at": image.uploaded_at,
             "image_url":
                 f"{CDN_DOMAIN}/{image.stored_name}"
